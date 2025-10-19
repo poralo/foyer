@@ -1,0 +1,26 @@
+services:
+  prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: foyer.client
+    ports:
+      - "8080:8080"
+
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4200:4200"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: ["npm", "run", "test"]

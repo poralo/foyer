@@ -1,0 +1,277 @@
+<main class="p-4">
+  @if (taskStore.isLoading()) {
+    <div class="flex justify-center">
+      <span class="loading loading-spinner loading-xl"></span>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-4 snap-y snap-mandatory">
+      @for (view of taskStore.sections(); track $index) {
+        <app-section class="snap-start" [model]="view" [readOnly]="$index > 0" />
+      }
+    </div>
+  }
+</main>
+
+<div class="fab">
+  <!-- a focusable div with tabindex is necessary to work on all browsers. role="button" is necessary for accessibility -->
+  <div tabindex="0" role="button" class="btn btn-lg btn-circle btn-primary">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="size-6">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  </div>
+
+  <!-- buttons that show up when FAB is open -->
+  <button class="btn btn-lg btn-circle" (click)="newTask.showModal()">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke-width="1.5"
+      stroke="currentColor"
+      class="size-6">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
+    </svg>
+  </button>
+</div>
+
+<dialog #newTask class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box">
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+        ✕
+      </button>
+    </form>
+    <h3 class="text-lg font-bold">Ajouter une nouvelle tâche</h3>
+    <form
+      id="add-new-task"
+      [formGroup]="addNewTaskForm"
+      (ngSubmit)="onSubmit()">
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Titre</legend>
+        <input
+          type="text"
+          class="input"
+          placeholder="Titre de la tâche"
+          formControlName="label" />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Date</legend>
+        <input type="date" class="input" formControlName="date" />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend class="fieldset-legend">Répétition</legend>
+        <select class="select" formControlName="frequency">
+          <option disabled selected>Selectionner le type</option>
+          <option value="never">Jamais</option>
+          <option value="daily">Tous les jours</option>
+          <option value="weekly">Toutes les semaines</option>
+          <option value="monthly">Tous les mois</option>
+          <option value="yearly">Tous les ans</option>
+        </select>
+      </fieldset>
+
+      @switch (addNewTaskForm.controls.frequency.value) {
+        @case ('daily') {
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Intervalle</legend>
+            <label class="input">
+              <input
+                type="number"
+                class="input"
+                min="1"
+                max="10"
+                formControlName="interval" />
+              <span class="label">jour</span>
+            </label>
+          </fieldset>
+        }
+
+        @case ('weekly') {
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Intervalle</legend>
+            <label class="input">
+              <input
+                type="number"
+                class="input"
+                min="1"
+                max="10"
+                formControlName="interval" />
+              <span class="label">semaine</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Les</legend>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[0]" />
+              Lundi
+            </label>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[1]" />
+              Mardi
+            </label>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[2]" />
+              Mercredi
+            </label>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[3]" />
+              Jeudi
+            </label>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[4]" />
+              Vendredi
+            </label>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[5]" />
+              Samedi
+            </label>
+            <label class="label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox"
+                [formControl]="weekDayArrayControl.controls[6]" />
+              Dimanche
+            </label>
+          </fieldset>
+        }
+
+        @case ('monthly') {
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Intervalle</legend>
+            <label class="input">
+              <input
+                type="number"
+                class="input"
+                min="1"
+                max="10"
+                formControlName="interval" />
+              <span class="label">mois</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Répéter le jour</legend>
+            <div class="join join-vertical">
+              <label class="input">
+                <input
+                  type="radio"
+                  name="monthly-repeat"
+                  class="radio"
+                  value="day"
+                  [formControl]="monthlyRepeatControl" />
+                Même jour chaque mois
+              </label>
+
+              <label class="input">
+                <input
+                  type="radio"
+                  name="monthly-repeat"
+                  class="radio"
+                  value="week"
+                  [formControl]="monthlyRepeatControl" />
+                Même semaine chaque mois
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Les</legend>
+            @switch (monthlyRepeatControl.value) {
+              @case ('day') {
+                <input
+                  type="number"
+                  class="input"
+                  min="1"
+                  max="31"
+                  formControlName="each" />
+              }
+              @case ('week') {
+                <select class="select" formControlName="week">
+                  <option value="first">Premier</option>
+                  <option value="second">Deuxième</option>
+                  <option value="third">Troisième</option>
+                  <option value="fourth">Quatrième</option>
+                  <option value="last">Dernier</option>
+                </select>
+
+                <select class="select" formControlName="weekDay">
+                  <option value="monday">Lundi</option>
+                  <option value="thuesday">Mardi</option>
+                  <option value="wedsday">Mercredi</option>
+                  <option value="thursday">Jeudi</option>
+                  <option value="friday">Vendredi</option>
+                  <option value="saturday">Samedi</option>
+                  <option value="sunday">Dimanche</option>
+                </select>
+              }
+            }
+          </fieldset>
+        }
+
+        @case ('yearly') {
+          <fieldset class="fieldset">
+            <legend class="fieldset-legend">Intervalle</legend>
+            <label class="input">
+              <input
+                type="number"
+                class="input"
+                min="1"
+                max="10"
+                formControlName="interval" />
+              <span class="label">année</span>
+            </label>
+          </fieldset>
+        }
+      }
+    </form>
+    <div class="modal-action">
+      <button
+        type="submit"
+        form="add-new-task"
+        class="btn"
+        [disabled]="addNewTaskForm.invalid">
+        Ajouter
+      </button>
+    </div>
+  </div>
+</dialog>

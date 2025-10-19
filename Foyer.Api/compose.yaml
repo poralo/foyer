@@ -1,0 +1,31 @@
+﻿services:
+  db:
+    image: postgres
+    restart: always
+    # set shared memory limit when using docker compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_PASSWORD: password
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+  
+  server:
+    image: foyer.api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_HTTP_PORTS=5201
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5201:5201"
+    depends_on:
+      - db
