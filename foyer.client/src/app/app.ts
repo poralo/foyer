@@ -1,8 +1,15 @@
-import { Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  viewChild,
+} from '@angular/core';
 import { Section } from './core/section/section';
 import { TaskStore } from '@core/task/task.store';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Frequency, Task, Week, DayOfWeek } from '@core/task/task.model';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 
 type MontlyRepeat = 'day' | 'week';
 
@@ -18,8 +25,9 @@ const dateToInput = (date: Date) =>
   providers: [TaskStore],
   templateUrl: './app.html',
 })
-export class App {
-  private formBuilder = inject(FormBuilder);
+export class App implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly oidcSecurityService = inject(OidcSecurityService);
 
   protected readonly taskStore = inject(TaskStore);
 
@@ -106,6 +114,16 @@ export class App {
       this.addNewTaskForm.controls.dayOfWeeks.reset();
       this.addNewTaskForm.controls.dayOfWeeks.setValue(selectedDays);
     });
+  }
+
+  public ngOnInit(): void {
+    this.oidcSecurityService
+      .checkAuth()
+      .subscribe(
+        ({ isAuthenticated }) => {
+          return isAuthenticated || this.oidcSecurityService.authorize()
+        }
+      );
   }
 
   protected onSubmit(): void {

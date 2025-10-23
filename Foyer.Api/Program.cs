@@ -1,6 +1,10 @@
 using Foyer.Endpoints;
 using Foyer.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Task = System.Threading.Tasks.Task;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,16 +17,9 @@ builder.Services.AddDbContextPool<FoyerContext>(opt =>
     })
     .UseSnakeCaseNamingConvention());
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200")
-                .AllowAnyMethod()
-                .AllowAnyHeader();
-        });
-});
+builder.Services.AddAuthentication()
+    .AddJwtBearer();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -30,7 +27,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigin");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapTaskEndpoints();
 
 app.Run();

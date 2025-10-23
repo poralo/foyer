@@ -98,7 +98,7 @@ public static class TasksEndpoints
     {
         app.MapGet("tasks", async (FoyerContext context) =>
         {
-            var days = 64;
+            var days = 3;
             var today = DateTime.Today;
 
             var tasks = await Get(context, today);
@@ -110,7 +110,7 @@ public static class TasksEndpoints
             }
 
             return Results.Ok(tasks);
-        });
+        }).RequireAuthorization();
 
         app.MapPost("tasks", async (CreateTaskRequest request, FoyerContext context) =>
         {
@@ -130,7 +130,7 @@ public static class TasksEndpoints
                 "pending",
                 task.Meta);
             return Results.Created($"tasks/{task.Id}", response);
-        });
+        }).RequireAuthorization();;
 
         app.MapDelete("tasks/{taskId:int}", async (int taskId, FoyerContext context) =>
         {
@@ -156,6 +156,6 @@ public static class TasksEndpoints
             await context.SaveChangesAsync();
             
             return Results.NoContent();
-        });
+        }).RequireAuthorization();;
     }
 }
